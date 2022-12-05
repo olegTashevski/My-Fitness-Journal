@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  
+  <body>
+  <div>
+    <h1 th:if="${newWeightlifter}==true"  th:text="'Welcome new weightlifter to the family'" ></h1>
+  <h1>Enter details to sign in weightlifter</h1>
+  <form action="#" method="get"  th:action="@{/getHomepage}" th:object="${weightlifter}" >
+  <label for="username">Username:</label>
+  <input type="text" id="username" name="username" th:field="*{username}" >
+  <br>
+  <label for="password">Password:</label>
+  <input type="password" id="password"  name="password" th:field="*{password}">
+  <br>
+  <input type="submit" value="Sign In">
+  </form>
+  <h3 th:if="${WrongSignInInfo}==true" style="color:red" th:text="${reason}" ></h3>
+  </div>
+  
+  <div>
+  <h1>New to the site?  Create a new acount now and share your weightlifting expirience with your friends</h1>
+  <form action="#" method="get"  th:action="@{/signedUp}" id="form_sign_up" th:object="${weightlifterSignUp}" onsubmit="signUp()">
+  <label for="usernameUp">Username:</label>
+  <input th:field="*{username}" id="usernameUp" required minlength="5" maxlength="15" name="usernameUp" type="text">
+  <br>
+  <label for="passwordUp">Password:</label>
+  <input th:field="*{password}" id="passwordUp" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{4,8}$" name="passwordUp" type="password">
+  <br>
+  <label for="firstName">First name:</label>
+  <input th:field="*{firstname}" required minlength="5" maxlength="20" id="fistName" name="firstName" type="text">
+  <br>
+  <label for="lastName">Last name:</label>
+  <input th:field="*{lastName}" required minlength="5" maxlength="30" id="lastName" name="lastName" type="text">
+  <br>
+  <p>Gender:</p>
+  <input type="radio" id="male" name="gender" value="male">
+  <label for="male">male</label><br>
+  <input type="radio" id="female" name="gender" value="female">
+  <label for="female">female</label>
+  <input id="genderInput" th:field="*{gender}" hidden type="text">
+  <br>
+  <label for="dateOfBirth">Date of birth:</label>
+  <input required th:field="*{dateOfBirth}" type="date" id="dateOfBirth" name="dateOfBirth">
+  <br>
+  <input  type="submit" value="Sign up">
+  </form>
+  </div>
+  <h3 th:if="${userAllreadyExists}==true" style="color:red" th:text="${reason}"></h1>
+
+  </body>
+
+  <script src="/js/signScript.js"></script>
+  <script th:if="${signUpErrors}!=null">showSignpErrors("[[${signUpErrors}]]")</script>
+</html>  
+  

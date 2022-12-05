@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="/css/homapage.css"/>
+  </head>
+  <body onload="getFriendRequests(this)">
+ 
+ 
+<!-- The Modal -->
+<div th:if="${myPage}==true" class="modal" id="myModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Edit Post</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div id="modalId" class="modal-body">
+        <div id="editPostDiv" class="container">
+      <div class="input-group mb-3">
+  <span class="input-group-text">Head</span>
+  <input id="headEdit" type="text" class="form-control">
+</div>
+
+        <div class="mb-3 mt-3">
+          <label for="comment">Description:</label>
+          <textarea class="form-control" rows="5" id="comment" name="text"></textarea>
+        </div>
+
+        
+        
+        <p hidden id="postIdEdit"></p>
+      </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="SubmitEdit" data-bs-dismiss="modal" class="btn btn-primary">Submit Edit</button>
+        <div id="insertNewPhotos" class="options">
+          <p>Add Photos</p>
+            <input id="imagesForPostEdit" accept="image/*" multiple type="file">
+        </div>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+    <h1 id="username" hidden th:text="${weightlifter.username}"></h1>
+  <div>
+<ul class="nav">
+  <a th:if="${myPage}==false" th:href="'/homepage?username='+${mainUser}"><button  class="btn btn-primary" type="submit">Go Home</button></a>
+  <li><button th:if="${myPage}==true" id="buttonForProfilePic">Update profile pic</button><label th:if="${myPage}==true" id="labelForProfilePicInput" hidden class="form-label" for="customFile">Select Picture</label>
+    <input th:if="${myPage}==true" hidden type="file" class="form-control" id="customFile" /><img id="profileImage" th:src="'/getApi/ProfileImage?weightlifterId='+${weightlifter.username}" alt="NO PROFILE PIC"></li>
+  <li><h1 th:text="${weightlifter.firstName}"></h1></li>
+  <li><h1 th:text="${weightlifter.lastName}" ></h1></li>
+  <li><div id="bioDiv"><p id="bio" th:text="${weightlifter.bio}"></p><button th:if="${myPage}==true" class="btn btn-secondary btn-sm btn btn-warning"  onclick="changeBio()">change bio</button></div></li>
+  <li><a th:if="${friend}==false and ${myPage}==false"  id="friendRequest" class="btn btn-primary btn-lg"></a><a class="btn btn-primary btn-lg" th:if="${weightlifter.monthlySchedule!=null} and ${myPage}==false and ${friend}==true" th:href="'/getMonthlySheduleU?username='+${weightlifter.username}">Mouthly Shedule</a><a th:if="${weightlifter.monthlySchedule!=null} and ${myPage}==true" class="btn btn-primary btn-lg" th:href="'/getMonthlySheduleU?username='+${weightlifter.username}">Monthly Shedule</a><button class="btn btn-primary btn-lg" th:if="${weightlifter.monthlySchedule}==null and ${myPage}==true" onclick="createMouthlyShedule()" >New Mounthly Shedule</button></li>
+  <li th:if="${myPage==true}"><button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Friends</button></li>
+  <li th:if="${myPage}==true"><input type="text" name="searchBar" id="searchBar" onKeyUp="showResult(this.value)" />
+    <div id="SuggestionRezult"></div>
+    </li>
+    <li> <div th:if="${myPage==true}" class="btn-group">
+          <button class="btn btn-secondary btn-sm dropdown-toggle"  type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Friend requests
+          </button>
+          <ul id="GetfriendRequests" class="dropdown-menu">
+            
+          </ul>
+        </div></li>
+        <li th:if="${myPage==true}"><form th:action="@{/logOut}"><button class="btn btn-secondary btn-sm btn btn-danger" type="submit">Log out</button></form></li>
+</ul>
+
+<div th:if="${myPage==true}" class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">My friends</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <ul id="myFriends">
+      <li class="friendInfo" th:each="friend : ${weightlifter.myFriends}">
+        <button class="btn btn-secondary btn-sm btn btn-danger" onclick="deleteFriend(this)">delete</button>
+        <p hidden th:text="${friend.username}" class="friendUsername"></p>
+        <ul class="friendList" style="padding-left: 0px; text-align: left;">
+          <li style="display:inline-block;padding: 10px 20px;">
+          <img style="width: 100px;" th:src="'/getApi/ProfileImage?weightlifterId='+${friend.username}" alt="no profile pic">
+          <h4><a th:text="${friend.username}" th:href="'/getHomapageForFriend?myUsername='+ ${weightlifter.username} + '&friendUsername='+${friend.username}"></a></h4>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>
+<div th:if="${myPage}==true" class="container">
+  <div class="wrapper">
+    <section class="post">
+      <form method="post" enctype="multipart/form-data" onsubmit="post()"  th:action="@{/homepagaAfterPost}" th:object="${postRequest}">
+      <ul class="list">
+        <li><h4><input th:field="*{head}" type="text" id="Header" name="Header" ></h4></li>
+      </ul>
+        <textarea th:field="*{description}" id="descriptionForPost" placeholder="Make a progress post or you want something to share?" spellcheck="false" required></textarea>
+        <div class="options">
+          <p>Add to Your Post</p>
+            <input id="imagesForPost" accept="image/*" multiple type="file" th:field="*{images}">
+        </div>
+        <input type="hidden"  th:field="*{weightlifterUsername}">
+        <input id="hasImages" type="hidden"  th:field="*{hasImages}">
+        <button>Post</button>
+      </form>
+    </section>
+  </div>
+</div>
+
+  </div>
+  <div th:if="${friend}==true or ${myPage}==true"  id="posts">
+  </div>
+   
+  
+  <script>const myPage = [[${myPage}]];</script>
+  <script>var mainUser="[[${mainUser}]]"</script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script src="/js/homapage.js"></script>
+  <script th:if="${myPage}==true">
+    getPostsForMainUser();
+    getPostsForMainUserAfterScrolledBottom();
+    </script>
+  <script th:if="${myPage}==false and ${friend}==true">
+    getPostsForFriends();
+    getPostsForFriendsAfterScrolledBottom();
+    </script>
+    <script th:if="${myPage}==true and ${postErrors}!=null">
+    showErrors("[[${postErrors}]]");
+    </script>
+    <script th:if="${myPage}==true and ${imageNotException}==true">
+      imageNotException();
+    </script> 
+  </body>
+  
+</html>

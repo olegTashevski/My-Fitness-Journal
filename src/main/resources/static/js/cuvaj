@@ -1,0 +1,22 @@
+function showResult(val) {
+      let username = document.getElementById("username").innerHTML;
+      res = document.getElementById("SuggestionRezult");
+      res.innerHTML = '';
+      if (val == '') {
+        return;
+      }
+      let list = '';
+      fetch('/getApi/getWeighliftersUsernamesForPattern?pattern=' + val).then(
+       function (response) {
+         return response.json();
+       }).then(function (data) {
+         for (i=0; i<data.length; i++) {
+           list += '<li><form  method="POST" action="/getHomapageForSearchBar?myUsername='+username + '&otherUsername=' + data[i] + '" ><button type="submit">'+ data[i] +'</button></form>' + '</li>';
+         }
+         res.innerHTML = '<ul>' + list + '</ul>';
+         return true;
+       }).catch(function (err) {
+         console.warn('Something went wrong.', err);
+         return false;
+       });
+    }

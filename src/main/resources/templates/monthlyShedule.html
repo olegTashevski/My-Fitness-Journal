@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <a th:href="'/homepage?username='+${username}"><button class="btn btn-primary">Back</button></a>
+    <ol  class="list-group list-group-horizontal">
+    <li class="dayList" th:each="day : ${daysOfShedule}">
+      <h1 class="dayId" hidden th:text="${day.id}"></h1>
+      <h1 class="username" hidden th:text="${day.getWeightlifterUsername()}"></h1>
+     <div class="card" style="width: 50rem;">
+      <div class="card-body">
+        <h5 th:text="${day.date}" class="card-title">Card title</h5>
+        <div>
+        <h4>Meals:</h4>
+          <ul>
+            <li th:each="meal : ${day.meals}">
+              <h4 class="meal_id" hidden th:th:text="${meal.id}"></h4>
+              <button th:if="${myPage==true}" onclick="deleteMeal(this,event)">Delete Meal</button>
+              <h5 th:text="${meal.type} + ':'"></h5>
+              <h5 th:text="${meal.nameOfMeal}"></h5>
+              <h5>Ingredients:</h5>
+              <ol>
+                <li th:each="ing : ${meal.ingredients}">
+                  <h5 th:text="${ing}"></h5>
+                </li>
+              </ol>
+              <h5 th:text="'Calories:' + ${meal.calories}"></h5>
+              <h5 th:text="'Protein:' + ${meal.protein}"></h5>
+              <h5 th:text="'Carbs:' + ${meal.carbs}"></h5>
+              <h5 th:text="'Fats:' + ${meal.fats}"></h5>
+            </li>
+            </ul>
+        </div>
+        <div>
+          <h4>Workouts:</h4>
+          <ul>
+          <li th:each="workout : ${day.workouts}">
+          <h4 class="workout_id" hidden th:th:text="${workout.id}"></h4>
+          <button th:if="${myPage==true}" onclick="deleteWorkout(this,event)">Delete workout</button>
+          <h4>Workout:</h4>
+            <ul>
+              <li th:each="exercise : ${workout.exercises}">
+                <h5 th:text="'Exercise :'+ ${exercise.name}"></h5>
+                <h5 th:text="'Number of sets:' + ${exercise.sets}"></h5>
+                <h5 th:text="'Reps for each set:'"></h5>
+                <ol>
+                  <li style="display:inline-block" th:each="reps : ${exercise.reps}">
+                    <h6 th:text="${reps}"></h6>
+                  </li>
+                </ol>
+              </li>
+            </ul>
+          </li>
+          </ul>
+        </div>
+        <div>
+          <h5>Supplements:</h5>
+          <ol>
+            <li th:each="supp : ${day.supplements}">
+              <button th:if="${myPage==true}" onclick="deleteSupplement(this,event)">Delete Supplement</button>
+              <h6 class="supple" th:text="${supp}"></h6>
+            </li>
+          </ol> 
+        </div>
+        <div th:if="${myPage==true}" class="btn-group">
+          <button class="btn btn-secondary btn-sm dropdown-toggle" onclick="diffrentDay(this)" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Add Meal
+          </button>
+          <ul class="dropdown-menu">
+            <form  onsubmit="addMeal(this,event)">
+              <label for="sel1" class="form-label">Select the type of the meal:</label>
+              <select class="form-select" id="sel1" name="sellist1">
+                    <option>Breakfest</option>
+                    <option>Lunch</option>
+                    <option>Dinner</option>
+                    <option>Snack</option>
+              </select>
+              <div class="input-group mb-3 input-group-sm">
+                <span class="input-group-text">Name</span>
+               <input type="text" class="form-control">
+             </div>
+             <div  class="input-group mb-3 input-group-sm">
+              <span class="input-group-text">Insert Ingredients with quantity for each click insert</span>
+             <input type="text" placeholder="ingridient 1" class="form-control">
+             <button onclick="insertIng(event,this)" type="button">Insert ingridient</button>
+           </div>
+           <div class="form-outline">
+             <label class="form-label" for="typeNumber">Calories</label>
+            <input type="number" id="typeNumber" class="form-control" />
+          </div>
+          <div class="form-outline">
+            <label class="form-label" for="typeNumber">Protein in grams</label>
+            <input type="number" id="typeNumber" class="form-control" />
+          </div>
+          <div class="form-outline">
+            <label class="form-label" for="typeNumber">Carbs in grams</label>
+            <input type="number" id="typeNumber" class="form-control" />
+          </div>
+          <div class="form-outline">
+            <label class="form-label" for="typeNumber">Fats in grams</label>
+            <input type="number" id="typeNumber" class="form-control" />
+          </div>
+          <button>Submit Meal</button>
+            </form>
+          </ul>
+        </div>
+        <div th:if="${myPage==true}" class="btn-group">
+          <button class="btn btn-secondary btn-sm dropdown-toggle" onclick="diffrentDay(this)"  type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Add workout
+          </button>
+          <ul class="dropdown-menu">
+            <form onsubmit="sumbitWokrout(this,event)">
+              <h5 class="exercise">Exercise 1</h5>
+              <div class="input-group mb-3 input-group-sm">
+                <span class="input-group-text">Name:</span>
+               <input data-name="nameE" type="text" class="form-control">
+             </div>
+            
+           <div class="form-outline">
+             <label class="form-label" for="typeNumber">Number of sets</label>
+            <input onchange="inputForReps(this)" data-name="sets" type="number" id="typeNumber" class="form-control" />
+          </div>
+          <button onclick="insertExercise(this)" type="button">Insert Exercise</button>
+          <button type="submit">Submit workout</button>
+            </form>
+          </ul>
+        </div>
+        <div th:if="${myPage==true}" class="btn-group">
+          <button class="btn btn-secondary btn-sm dropdown-toggle"   type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Add Supplement
+          </button>
+          <ul class="dropdown-menu">
+            <form onsubmit="sumbitSupplement(this,event)">
+              <div class="input-group mb-3 input-group-sm">
+                <span class="input-group-text">Supplement and quantity</span>
+               <input type="text" class="form-control">
+             </div>
+          <button type="submit">Submit supplement</button>
+            </form>
+          </ul>
+        </div>
+        
+          
+        
+      </div>
+     </div>
+    </li>
+    </ol>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="/js/monthlyShedule.js"></script>
+  </body>
+</html>
