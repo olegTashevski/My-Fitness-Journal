@@ -31,7 +31,7 @@ public class WeightlifterSignUp {
 	private String lastName;
 	
 	
-	@Pattern(regexp =  "(?:^|\\W)female,(?:$|\\W)|(?:^|\\W)male,(?:$|\\W)",message = "gender must be female, or male,")
+	@Pattern(regexp =  "(?:^|\\W)female(?:$|\\W)|(?:^|\\W)male(?:$|\\W)",message = "gender must be female or male")
 	private String gender;
 	
 	@NotNull(message = "date of birth nust be entered")

@@ -115,11 +115,16 @@ async function addMeal(element,event){
           }
             
         });
+        if(!(response.status>=200 && response.status<300)){
+            console.log(await response.text());
+            alert("Invalid information about the  Meal submited ");
+            return;
+          }
+        
         console.log(response.text());
           window.location.replace("/getMonthlySheduleU?username="+username); 
         } catch (error) {
           console.log(error);
-          alert("Invalid information about the  Meal submited ");
         }
         
 
@@ -255,11 +260,16 @@ function insertExercise(element){
           }
             
         });
+        if(!(response.status>=200 && response.status<300)){
+            console.log(await response.text());
+            alert("Invalid information about the  Workout  submited ");
+            return;
+          }
+
         console.log(response.text()); 
           window.location.replace("/getMonthlySheduleU?username="+username);
         } catch (error) {
           console.log(error);
-          alert("Invalid information about the workout submited");
         }
           
           
@@ -308,13 +318,17 @@ function insertExercise(element){
           }
             
         });
-
+        
+        if(!(response.status>=200 && response.status<300)){
+            console.log(await response.text());
+            alert("Invalid information about the  Supplement  submited ");
+            return;
+          }
 
           console.log(await response.text());
           window.location.replace("/getMonthlySheduleU?username="+username); 
         } catch (error) {
           console.log(error);
-          alert("invalid supplement submited");
         }
           
 

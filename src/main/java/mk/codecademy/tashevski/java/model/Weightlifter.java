@@ -54,6 +54,10 @@ public class Weightlifter{
 	@Lob
 	private byte[] profilePic;
 	
+	
+	@OneToOne(mappedBy = "weightlifter",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+	private Rating rating;
+	
     @JsonManagedReference
 	@OneToOne(mappedBy = "weightlifter",cascade = CascadeType.ALL,orphanRemoval = true)
 	private MonthlySchedule monthlySchedule;

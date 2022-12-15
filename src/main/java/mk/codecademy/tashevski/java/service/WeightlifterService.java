@@ -71,7 +71,7 @@ public class WeightlifterService {
 		Weightlifter weightlifter = new Weightlifter(weightlifterDto.getUsername()
 				,weightlifterDto.getPassword() , weightlifterDto.getFirstname()
 				, weightlifterDto.getLastName(), weightlifterDto.getGender()
-				, weightlifterDto.getDateOfBirth(), "", null, null, new HashSet<Post>(), new HashSet<Weightlifter>(), new HashSet<Weightlifter>()); 
+				, weightlifterDto.getDateOfBirth(), "", null, null,null, new HashSet<Post>(), new HashSet<Weightlifter>(), new HashSet<Weightlifter>()); 
 		weightlifterRepo.save(weightlifter);
 	}
 

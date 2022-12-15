@@ -35,10 +35,12 @@ import mk.codecademy.tashevski.java.exceptions.IlegalAccessException;
 import mk.codecademy.tashevski.java.exceptions.IlegalUsernameOrPassword;
 import mk.codecademy.tashevski.java.model.Photo;
 import mk.codecademy.tashevski.java.model.Post;
+import mk.codecademy.tashevski.java.model.SingleRating;
 import mk.codecademy.tashevski.java.model.Weightlifter;
 import mk.codecademy.tashevski.java.repository.MonthlyScheduleRepo;
 import mk.codecademy.tashevski.java.repository.PhotoRepo;
 import mk.codecademy.tashevski.java.repository.PostRepo;
+import mk.codecademy.tashevski.java.repository.SingleRatingRepo;
 import mk.codecademy.tashevski.java.repository.WeightlifterRepo;
 
 @Service
@@ -58,6 +60,9 @@ public class WeightLifterGetService {
 	
 	@Autowired
 	private PhotoRepo photoRepo;
+	
+	@Autowired
+	private SingleRatingRepo singleRatingRepo; 
 
 	
 
@@ -173,6 +178,18 @@ public class WeightLifterGetService {
 		weightlifterRepo.save(weightlifter);
 		
 		
+	}
+
+
+
+	public String getRating(String username, String friend) {
+		String response = "noRating";
+		Optional<SingleRating> ratingOp = singleRatingRepo.getSingleRatingFromMainUserToFriend(username, friend);
+		if(ratingOp.isPresent()) {
+			response =""+ ratingOp.get().getRating();
+		}
+		
+		return response;
 	}
 
 	

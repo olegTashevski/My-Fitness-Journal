@@ -1,9 +1,10 @@
-
+    console.log("this is main user" +mainUser);
     var username= document.getElementById("username").innerHTML;
     console.log("hello lovly");
     var deletedImagesEdit=[];
     let i = 0;
     let lastPost = false;
+    let firtTime = true;
     function getPostsForMainUser(){
       getPosts(i);
       setTimeout(appendDeleteButtonToPosts,300);     
@@ -15,71 +16,100 @@
     }
 
     function getPostsForMainUserAfterScrolledBottom(){
-      
+      if(firtTime){
+        getPostsForMainUser();
+        if(lastPost){
+          return;
+        }
+        setTimeout(getPostsForMainUserAfterScrolledBottom,1000);
+        firtTime=false;
+      }
+	
+      else{
   
         if(!lastPost)
       {
-        timeoutKey = setTimeout(getPostsForMainUserAfterScrolledBottom,5000);
-        if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight) {
+        timeoutKey = setTimeout(getPostsForMainUserAfterScrolledBottom,1000);
+        if ((window.innerHeight + Math.ceil(window.pageYOffset)) >= document.body.offsetHeight) {
           i++;
           getPostsForMainUser();
+          
         }
         }
         else{
           clearTimeout(timeoutKey)
         }
      
-    
+    }
   }
 
 
   function getPostsForFriendsAfterScrolledBottom(){
    
-    document.addEventListener('scroll', () => {
+    if(firtTime){
+      getPostsForFriends();
+      if(lastPost){
+        return;
+      }
+      setTimeout(getPostsForFriendsAfterScrolledBottom,1000);
+      firtTime=false;
+    }
+
+    else{
+
       if(!lastPost)
-      {
-        if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight) {
-          i++;
-          setTimeout(getPostsForFriends,300);
-        }
-        }
-    });
+    {
+      timeoutKey = setTimeout(getPostsForFriendsAfterScrolledBottom,1000);
+      if ((window.innerHeight + Math.ceil(window.pageYOffset)) >= document.body.offsetHeight) {
+        i++;
+        getPostsForFriends();
+        
+      }
+      }
+      else{
+        clearTimeout(timeoutKey)
+      }
+   
+  }
   
 }
 
-function getPosts(i){
+async function getPosts(i){
   let elementPosts;
-    try {
+  try {
     elementPosts = document.getElementById("posts");
     
-    } 
-    catch (error) {
-      return 0;
-    }
-  fetch("/getApi/getPosts?username="+username +"&pageIndex="+i+"&" + new Date().getTime(),{
+   
+    let response = await fetch("/getApi/getPosts?username="+username +"&pageIndex="+i+"&" + new Date().getTime(),{
     method:"GET",
     headers:{
       "Accept":"application/json"
     }
-  }).then((response)=>{return response.json()})
-  .then((posts)=>{
+    });
+    response = await response.json();
     
-    for(const post of posts.content){
-      let divPost = document.createElement("div");
-      divPost.className="container";
-      divPost.postId = post.id;
-      let headPost = document.createElement("h3");
-      let descriptionPost = document.createElement("p");
-      headPost.innerHTML=post.head;
-      descriptionPost.innerHTML=post.description;
-      divPost.appendChild(headPost);
-      divPost.appendChild(descriptionPost);
-      appendPostImages(post.photos,divPost);
-      elementPosts.appendChild(divPost);
-    }
-    lastPost=posts.last;
-  })
-  .catch(err=>alert(err));
+    
+      for(const post of response.content){
+        let divPost = document.createElement("div");
+        divPost.className="container";
+        divPost.postId = post.id;
+        let headPost = document.createElement("h3");
+        let descriptionPost = document.createElement("p");
+        headPost.innerHTML=post.head;
+        descriptionPost.innerHTML=post.description;
+        divPost.appendChild(headPost);
+        divPost.appendChild(descriptionPost);
+        appendPostImages(post.photos,divPost);
+        elementPosts.appendChild(divPost);
+      }
+      lastPost=response.last;
+    
+} 
+catch (error) {
+  return 0;
+}
+
+  
 
 }
 
@@ -201,8 +231,8 @@ function deletePost(evt){
 
  let counter=0;
 function appendDeleteButtonToPosts(){
-  counter*=5;
-  let counterTemp = counter;
+  
+  let counterTemp = counter*5;
   let posts = document.getElementById("posts");
   for(let post of posts.childNodes){
     if(post.className==="container"){
@@ -267,10 +297,15 @@ function appendDeleteButtonToPosts(){
           method:"POST",
           body:formImage
         }).then((response) =>{
+          if(!(response.status>=200 && response.status<300)){
+            alert("The following file is not a valid image");
+            return  Promise.resolve(false);
+          }
           return response.text();})
           .then((response)=>{
+            if(response){
             document.getElementById("profileImage").src='/getApi/ProfileImage?weightlifterId='+username +"&" + new Date().getTime();
-            console.log(response);
+            }
             document.getElementById("customFile").hidden = true;
             document.getElementById("labelForProfilePicInput").hidden = true;
             let element = document.getElementById("buttonForProfilePic");
@@ -500,7 +535,7 @@ function appendDeleteButtonToPosts(){
   }
 
 
- function changeBio(){
+  function changeBio(){
   let bio = document.getElementById('bio');
   let div = document.createElement('div');
   div.className='form-outline';
@@ -517,12 +552,29 @@ function appendDeleteButtonToPosts(){
   let button = document.createElement('button');
   button.innerHTML='submit change';
   button.className="btn btn-secondary btn-sm";
-  button.addEventListener('click',evt=>{
+  button.addEventListener('click',async evt=>{
     let newBio = document.getElementById('txtareaBio').value;
-    fetch('/putApi/updateBio?username='+username+'&newBio='+newBio,{
+    let response  = await fetch('/putApi/updateBio?username='+username+'&newBio='+newBio,{
       method:"PUT"
-    }).then(response=>response.text())
-    .then(text=>{console.log(text);
+    });
+    if(!(response.status>=200 && response.status<300)){
+      alert("your bio length cannot be longer than 80 characters ");
+      let bioDiv = document.createElement('div');
+      bioDiv.id='bioDiv';
+      let p = document.createElement('p');
+      p.innerHTML=bio.innerHTML;
+      p.id='bio';
+      let button = document.createElement('button');
+      button.innerHTML='change bio';
+      button.className='btn btn-secondary btn-sm btn btn-warning';
+      button.addEventListener('click',changeBio);
+      bioDiv.appendChild(p);
+      bioDiv.appendChild(button);
+      let replaceTextarea = document.getElementById('divBioTextarea');
+      replaceTextarea.parentNode.replaceChild(bioDiv,replaceTextarea);
+      return;
+    }
+
       let bioDiv = document.createElement('div');
       bioDiv.id='bioDiv';
       let p = document.createElement('p');
@@ -536,24 +588,12 @@ function appendDeleteButtonToPosts(){
       bioDiv.appendChild(button);
       let replaceTextarea = document.getElementById('divBioTextarea');
       replaceTextarea.parentNode.replaceChild(bioDiv,replaceTextarea);
-    })
-    .catch(err=>{alert("your bio length cannot be longer than 80 characters ");console.log(err);
-    let bioDiv = document.createElement('div');
-      bioDiv.id='bioDiv';
-      let p = document.createElement('p');
-      p.innerHTML=bio.innerHTML;
-      p.id='bio';
-      let button = document.createElement('button');
-      button.innerHTML='change bio';
-      button.className='btn btn-secondary btn-sm btn btn-warning';
-      button.addEventListener('click',changeBio);
-      bioDiv.appendChild(p);
-      bioDiv.appendChild(button);
-      let replaceTextarea = document.getElementById('divBioTextarea');
-      replaceTextarea.parentNode.replaceChild(bioDiv,replaceTextarea);
+    
+   
+   
   });
     
-  });
+ 
   div.appendChild(txtarea);
   div.appendChild(label);
   div.appendChild(button);
@@ -570,5 +610,66 @@ function appendDeleteButtonToPosts(){
  function imageNotException(){
   alert("The following file  was not a image,please enter only images in your post");
  }
+
+
+ async function sumbitRating(){
+  try
+  {
+  let ratingSelection = document.getElementById("ratingSelection");
+  let selectedValue = ratingSelection.options[ratingSelection.selectedIndex].value;
+  if(isNaN(selectedValue)){
+    console.log("selected value is not number");
+    return;
+  }
+  console.log("in submit rating "+mainUser);
+  let response = await fetch(`/putApi/newRating?username=${mainUser}&friendUsername=${username}&rating=${selectedValue}`,{
+    method:"PUT"
+  });
+
+  if(!(response.status>=200 && response.status<300)){
+    alert("Invalid rating inserted");
+    return;
+  }
+
+  response = await response.text();
+  let ratingElement = document.getElementById("rating");
+  if(ratingElement==null){
+    ratingElement = document.createElement("h1");
+    ratingElement.id="rating";
+    document.getElementById("liRating").insertBefore(ratingElement,document.getElementById("divRating"));
+  }
+
+  ratingElement.innerText = "Rating : " + response;
+}
+catch(err){
+  console.log(err);
+}
+
+  
+}
+
+async function getYourRating(){
+
+  try {
+    let response = await fetch(`/getApi/getRating?username=${mainUser}&friend=${username}`,{
+      method:"GET"
+    });
+    response = await response.text();
+    if(response==="noRating"){
+      return;
+    }
+    let optionRatingDescription =document.getElementById("optionRatingDescription");
+    optionRatingDescription.selected=true;
+    optionRatingDescription.innerText="Your rating for this friend:"+response;
+    document.getElementById("buttonRating").innerText="change rating";
+
+
+  } catch (error) {
+    console.log(err);
+  }
+  
+
+}
+
 
   

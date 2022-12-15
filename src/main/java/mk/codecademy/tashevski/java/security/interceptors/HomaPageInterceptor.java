@@ -7,13 +7,16 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
+import org.thymeleaf.expression.Strings;
 
+import antlr.StringUtils;
 import mk.codecademy.tashevski.java.exceptions.IlegalUsernameOrPassword;
 import mk.codecademy.tashevski.java.exceptions.NotSignedInException;
 import mk.codecademy.tashevski.java.model.Weightlifter;
@@ -131,7 +134,7 @@ public class HomaPageInterceptor implements HandlerInterceptor {
 		return HandlerInterceptor.super.preHandle(request, response, handler);
 	}
 
-	private String checkUsername(String cookieUsername,String paramUsername) {
+	private  String checkUsername(String cookieUsername,String paramUsername) {
 		String type=null;
 		if(cookieUsername.equals(paramUsername)) {
 			type="myPage";
@@ -152,6 +155,23 @@ public class HomaPageInterceptor implements HandlerInterceptor {
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
+		if(!((boolean)modelAndView.getModel().get("myPage")==false)) {
+			return;
+		}
+		String mainUser = (String)(modelAndView.getModel().get("mainUser"));
+		if(mainUser!=null && !mainUser.isBlank()) {
+			return;
+		}
+		for (Cookie cookie : request.getCookies())
+		{
+			
+			if(cookie.getName().equals("authentication"))
+			{	
+				modelAndView.addObject("mainUser", cookie.getValue());
+			}
+			
+		}
+		
 		// TODO Auto-generated method stub
 		HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
 	}

@@ -5,57 +5,124 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
   </head>
   
   <body>
-  <div>
+  <div class="container login-form" style="width: 40%;">
     <h1 th:if="${newWeightlifter}==true"  th:text="'Welcome new weightlifter to the family'" ></h1>
-  <h1>Enter details to sign in weightlifter</h1>
+  <h4>Enter details to sign in weightlifter</h4>
   <form action="#" method="get"  th:action="@{/getHomepage}" th:object="${weightlifter}" >
-  <label for="username">Username:</label>
-  <input type="text" id="username" name="username" th:field="*{username}" >
-  <br>
-  <label for="password">Password:</label>
-  <input type="password" id="password"  name="password" th:field="*{password}">
-  <br>
-  <input type="submit" value="Sign In">
-  </form>
+    <h2 class="text-center">Log in</h2>       
+    <div class="form-group">
+        <input id="username" name="username" type="text" class="form-control" placeholder="Username" th:field="*{username}" required autofocus>
+    </div>
+    <div class="form-group">
+        <input id="password" name="password" type="password" class="form-control" placeholder="Password" th:field="*{password}" required="required">
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary btn-block">Log in</button>
+    </div>
+    
+            
+</form>
   <h3 th:if="${WrongSignInInfo}==true" style="color:red" th:text="${reason}" ></h3>
   </div>
   
-  <div>
-  <h1>New to the site?  Create a new acount now and share your weightlifting expirience with your friends</h1>
-  <form action="#" method="get"  th:action="@{/signedUp}" id="form_sign_up" th:object="${weightlifterSignUp}" onsubmit="signUp()">
-  <label for="usernameUp">Username:</label>
-  <input th:field="*{username}" id="usernameUp" required minlength="5" maxlength="15" name="usernameUp" type="text">
-  <br>
-  <label for="passwordUp">Password:</label>
-  <input th:field="*{password}" id="passwordUp" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{4,8}$" name="passwordUp" type="password">
-  <br>
-  <label for="firstName">First name:</label>
-  <input th:field="*{firstname}" required minlength="5" maxlength="20" id="fistName" name="firstName" type="text">
-  <br>
-  <label for="lastName">Last name:</label>
-  <input th:field="*{lastName}" required minlength="5" maxlength="30" id="lastName" name="lastName" type="text">
-  <br>
-  <p>Gender:</p>
-  <input type="radio" id="male" name="gender" value="male">
-  <label for="male">male</label><br>
-  <input type="radio" id="female" name="gender" value="female">
-  <label for="female">female</label>
-  <input id="genderInput" th:field="*{gender}" hidden type="text">
-  <br>
-  <label for="dateOfBirth">Date of birth:</label>
-  <input required th:field="*{dateOfBirth}" type="date" id="dateOfBirth" name="dateOfBirth">
-  <br>
-  <input  type="submit" value="Sign up">
-  </form>
+  <div> 
+  <h4>New to the site?  Create a new acount now and share your weightlifting expirience with your friends</h4>
+  <section class="vh-100" style="background-color: #eee;">
+    <div class="container h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-lg-12 col-xl-11">
+          <div class="card text-black" style="border-radius: 25px;">
+            <div class="card-body p-md-5">
+              <div class="row justify-content-center">
+                <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+  
+                  <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up</p>
+  
+                  <form action="#" method="get"  th:action="@{/signedUp}" id="form_sign_up" th:object="${weightlifterSignUp}" onsubmit="signUp()">
+  
+                    <div class="d-flex flex-row align-items-center mb-4">
+                      <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                      <div class="form-outline flex-fill mb-0">
+                        <label class="form-label" for="form3Example1c">Your Username</label>
+                        <input th:field="*{username}" type="text" id="form3Example1c" class="form-control" />
+                      </div>
+                    </div>
+  
+                    <div class="d-flex flex-row align-items-center mb-4">
+                      <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                      <div class="form-outline flex-fill mb-0">
+                        <label class="form-label" for="form3Example3c">Your Password</label>
+                        <input th:field="*{password}" type="password" id="form3Example3c" class="form-control" />
+                      </div>
+                    </div>
+  
+                    <div class="d-flex flex-row align-items-center mb-4">
+                      <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                      <div class="form-outline flex-fill mb-0">
+                        <label class="form-label" for="form3Example4c">Your Name</label>
+                        <input th:field="*{firstname}"  type="text" id="form3Example4c" class="form-control" />
+                      </div>
+                    </div>
+  
+                    <div class="d-flex flex-row align-items-center mb-4">
+                      <i class="fas fa-key fa-lg me-3 fa-fw"></i>
+                      <div class="form-outline flex-fill mb-0">
+                        <label class="form-label" for="form3Example4cd">Your last name</label>
+                        <input th:field="*{lastName}" type="text" id="form3Example4cd" class="form-control" />
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleFormControlSelect1">Gender</label>
+                      <select th:field="*{gender}" class="form-control" id="exampleFormControlSelect1">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                      </select>
+                    </div>
+
+
+
+                    <div id="date-picker-example" class="md-form md-outline input-with-post-icon datepicker" inline="true">
+                      <input  th:field="*{dateOfBirth}" placeholder="Select date" type="date" id="example" class="form-control">
+                      <label for="example">Try me...</label>
+                      <i class="fas fa-calendar input-prefix"></i>
+                    </div>
+  
+  
+                    <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                      <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                    </div>
+  
+                  </form>
+  				  <h3 th:if="${userAllreadyExists}==true" style="color:red" th:text="${reason}"></h3>
+  				  <h3 style="color:red" hidden id="signUpError"></h3>
+                </div>
+                <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+  
+                  <img src="https://www.nawpic.com/media/2020/gym-nawpic-3.jpg"
+                    class="img-fluid" alt="Sample image">
+  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
   </div>
-  <h3 th:if="${userAllreadyExists}==true" style="color:red" th:text="${reason}"></h1>
 
+	<script src="js/signScript.js"></script src="js/signScript.js">
+	
+	<script th:if="${signUpErrors}!=null">
+	signUpError();
+	</script>
   </body>
-
-  <script src="/js/signScript.js"></script>
-  <script th:if="${signUpErrors}!=null">showSignpErrors("[[${signUpErrors}]]")</script>
+  
+  
 </html>  
   

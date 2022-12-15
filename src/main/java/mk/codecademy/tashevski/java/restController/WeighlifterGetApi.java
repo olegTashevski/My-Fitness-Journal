@@ -58,5 +58,10 @@ public class WeighlifterGetApi {
 		String mainUser = (String) request.getAttribute("mainUser");
 		return weightLifterGetService.getPost(id,mainUser);
 	}
+	
+	@GetMapping("/getRating")
+	public String getRating(@RequestParam String username,@RequestParam String friend) {
+		return weightLifterGetService.getRating(username,friend);
+	}
 
 }

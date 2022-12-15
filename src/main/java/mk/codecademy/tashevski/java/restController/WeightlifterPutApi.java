@@ -3,6 +3,8 @@ package mk.codecademy.tashevski.java.restController;
 import java.sql.Date;
 import java.time.LocalDate;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +62,15 @@ public class WeightlifterPutApi {
 		weightlifterPutService.upadteBio(username,newBio);
 		return "Successfully updated bio";
 	}
+	
+	@PutMapping("/newRating")
+	public String newRating(@RequestParam String username
+			,@RequestParam String friendUsername
+			,@RequestParam @Min(1) @Max(5) int rating ) {
+		return "" + weightlifterPutService.giveRating(username,friendUsername,rating);
+	}
+	
+	
 	
 	
 	

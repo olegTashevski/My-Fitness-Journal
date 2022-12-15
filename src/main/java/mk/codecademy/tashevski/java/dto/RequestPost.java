@@ -29,7 +29,7 @@ public class RequestPost {
 	
 	@Size(max = 100,message = "max charachters of the head is 100")
 	private String head;
-	@Size(max = 300,message = "max charachters of the description is 300 and must not be blank")
+	@Size(max = 250,message = "max charachters of the description is 250 and must not be blank")
 	@NotBlank(message = "description must not be blank")
 	private String description;
 	private MultipartFile[] images;

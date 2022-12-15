@@ -1,20 +1,29 @@
 package mk.codecademy.tashevski.java.service;
 
 import java.sql.Date;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import mk.codecademy.tashevski.java.exceptions.IlegalPersonalInformationChange;
+import mk.codecademy.tashevski.java.model.BothUsernames;
+import mk.codecademy.tashevski.java.model.Rating;
+import mk.codecademy.tashevski.java.model.SingleRating;
 import mk.codecademy.tashevski.java.model.Weightlifter;
+import mk.codecademy.tashevski.java.repository.SingleRatingRepo;
 import mk.codecademy.tashevski.java.repository.WeightlifterRepo;
 
 @Service
+@RequiredArgsConstructor
 public class WeightlifterPutService {
 
-	@Autowired
-	private WeightlifterRepo weightlifterRepo;
+	
+	private final WeightlifterRepo weightlifterRepo;
+	private final SingleRatingRepo singleRatingRepo;
 
 	public void changePassword(String username, String newPassword) {
 		Weightlifter weightlifter = weightlifterRepo.findById(username).orElseThrow();
@@ -85,6 +94,47 @@ public class WeightlifterPutService {
 		
 		weightlifterRepo.save(weightlifter1);
 		weightlifterRepo.save(weightlifter2);
+	}
+
+	public float giveRating(String mainUsername, String friendUsername, int newRating) {
+		Weightlifter weightlifter = weightlifterRepo.findById(friendUsername).orElseThrow();
+		Rating rating = weightlifter.getRating();
+		if(rating==null) {
+			rating= new Rating();
+		}
+		
+		if(rating.getNumberOfRatins()==null) {
+			rating.setNumberOfRatins((long)0);
+		}
+		
+		long totalNumberOfRatings = rating.getNumberOfRatins();
+		
+		Optional<SingleRating> singleRatingOptional = 
+				singleRatingRepo.getSingleRatingFromMainUserToFriend(mainUsername,friendUsername);
+		SingleRating singleRating = singleRatingOptional.orElse(null);
+		if(singleRating==null) {
+			singleRating = SingleRating.builder()
+					.bothUsernames(new BothUsernames(mainUsername, friendUsername))
+				.weightlifterRating(rating).build();
+			totalNumberOfRatings++;
+			}
+		singleRating.setRating(newRating);
+		if(rating.getSingleRatings()==null) {
+			rating.setSingleRatings(new HashSet<>());
+			}
+		rating.getSingleRatings().add(singleRating);
+		rating.setNumberOfRatins(totalNumberOfRatings);
+		float raitingFinal  = rating.getSingleRatings().stream()
+				.map(rt->rt.getRating())
+				.reduce(0, (a,b)->(a+b));
+		raitingFinal = raitingFinal/totalNumberOfRatings;
+		rating.setRating(raitingFinal);
+		rating.setWeightlifter(weightlifter);
+		weightlifter.setRating(rating);
+		weightlifterRepo.save(weightlifter);
+		
+		return raitingFinal;
+		
 	}
 	
 	

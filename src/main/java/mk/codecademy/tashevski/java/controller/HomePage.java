@@ -36,7 +36,7 @@ public class HomePage {
 	}
 	
 	@PostMapping("/homepagaAfterPost")
-	public ModelAndView homepageAfterPost(@ModelAttribute @Valid() RequestPost requestPost,HttpServletRequest request) {
+	public ModelAndView homepageAfterPost(@ModelAttribute @Valid RequestPost requestPost,HttpServletRequest request) {
 		String mainUser = (String) request.getAttribute("mainUser");
 		weightlifterGetService.setModelForHomePageAfterPost(requestPost,mainUser);
 		return new ModelAndView("redirect:/myHomaPage?username="+requestPost.getWeightlifterUsername());

@@ -82,7 +82,7 @@ public class MVCExceptionHandler extends ExceptionHandlerExceptionResolver  {
 		boolean isRequestPost =  errorsMap.entrySet().stream().allMatch(er->
 		er.getKey().equals("head")||er.getKey().equals("description"));
 		String errors = errorsMap.entrySet().stream()
-				.map(en->en.getKey()+":"+en.getValue())
+				.map(en->en.getKey()+":"+en.getValue()+"\n")
 				.reduce("", (en1,en2)->(en1+en2));
 		
 		if(isRequestPost) {
