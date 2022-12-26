@@ -65,6 +65,7 @@
     <input th:if="${myPage}==true" hidden type="file" class="form-control" id="customFile" /><img id="profileImage" th:src="'/getApi/ProfileImage?weightlifterId='+${weightlifter.username}" alt="NO PROFILE PIC"></li>
   <li><h1 th:text="${weightlifter.firstName}"></h1></li>
   <li><h1 th:text="${weightlifter.lastName}" ></h1></li>
+  <li th:if="${myPage}==false"><h5 th:text="'Gender:'+${weightlifter.gender}"></h5></li>
   <li><div id="bioDiv"><p id="bio" th:text="${weightlifter.bio}"></p><button th:if="${myPage}==true" class="btn btn-secondary btn-sm btn btn-warning"  onclick="changeBio()">change bio</button></div></li>
   <li><a th:if="${friend}==false and ${myPage}==false"  id="friendRequest" class="btn btn-primary btn-lg"></a><a class="btn btn-primary btn-lg" th:if="${weightlifter.monthlySchedule!=null} and ${myPage}==false and ${friend}==true" th:href="'/getMonthlySheduleU?username='+${weightlifter.username}">Mouthly Shedule</a><a th:if="${weightlifter.monthlySchedule!=null} and ${myPage}==true" class="btn btn-primary btn-lg" th:href="'/getMonthlySheduleU?username='+${weightlifter.username}">Monthly Shedule</a><button class="btn btn-primary btn-lg" th:if="${weightlifter.monthlySchedule}==null and ${myPage}==true" onclick="createMouthlyShedule()" >New Mounthly Shedule</button></li>
   <li th:if="${myPage==true}"><button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Friends</button></li>

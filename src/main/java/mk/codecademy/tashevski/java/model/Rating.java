@@ -1,15 +1,12 @@
 package mk.codecademy.tashevski.java.model;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -34,7 +31,7 @@ public class Rating {
 	private Long numberOfRatins;
 	
 	@OneToMany(fetch = FetchType.EAGER,mappedBy="weightlifterRating",cascade = {CascadeType.MERGE,CascadeType.PERSIST})
-	private Set<SingleRating> singleRatings = new HashSet<>();
+	private Set<SingleRating> singleRatings;
 	
 	@OneToOne
 	@JoinColumn(name="id")

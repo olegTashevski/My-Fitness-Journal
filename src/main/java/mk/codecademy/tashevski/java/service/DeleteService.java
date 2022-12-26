@@ -1,13 +1,17 @@
 package mk.codecademy.tashevski.java.service;
 
-import java.util.function.BinaryOperator;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
 import mk.codecademy.tashevski.java.exceptions.IlegalAccessApiException;
 import mk.codecademy.tashevski.java.model.Day;
+import mk.codecademy.tashevski.java.model.Meal;
+import mk.codecademy.tashevski.java.model.Post;
+import mk.codecademy.tashevski.java.model.WORKOUT;
 import mk.codecademy.tashevski.java.model.Weightlifter;
 import mk.codecademy.tashevski.java.repository.DayRepo;
 import mk.codecademy.tashevski.java.repository.MealRepo;
@@ -16,34 +20,49 @@ import mk.codecademy.tashevski.java.repository.WeightlifterRepo;
 import mk.codecademy.tashevski.java.repository.WorkoutRepo;
 
 @Service
+@RequiredArgsConstructor
 public class DeleteService {
 	
-	@Autowired
-	private WorkoutRepo workoutRepo;
 	
-	@Autowired 
-	private MealRepo mealRepo;
 	
-	@Autowired
-	private DayRepo dayRepo;
+	private final  WorkoutRepo workoutRepo;
 	
-	@Autowired
-	private PostRepo postRepo;
+	 
+	private final MealRepo mealRepo;
 	
-	@Autowired
-	private WeightlifterRepo weightlifterRepo;
+	
+	private final DayRepo dayRepo;
+	
+	
+	private final PostRepo postRepo;
+	
+	
+	private final WeightlifterRepo weightlifterRepo;
 
+	
 	public void deleteWorkout(Long id, String mainUser) {
-		String username = workoutRepo.findById(id).get().getDay()
+		Optional<WORKOUT> workout =  workoutRepo.findById(id);
+		
+		if(workout.isEmpty()) {
+			throw new NoSuchElementException();
+		}
+		
+		String username = workout.get().getDay()
 				.getMonthlySchedule().getWeightlifter().getUsername();
+		
 		if(!username.equals(mainUser)) {
 			throw new IlegalAccessApiException();
 		}
+		
 		workoutRepo.deleteById(id);
 	}
 
 	public void deleteMeal(Long id,String mainUser) {
-		String username = mealRepo.findById(id).get().getDay()
+		Optional<Meal> meal = mealRepo.findById(id);
+		if(meal.isEmpty()) {
+			throw new NoSuchElementException();
+		}
+		String username = meal.get().getDay()
 				.getMonthlySchedule().getWeightlifter().getUsername();
 		if(!username.equals(mainUser)) {
 			throw new IlegalAccessApiException();
@@ -52,17 +71,32 @@ public class DeleteService {
 	}
 
 	public void deleteSupplement(String dayId,String supplement,String mainUser) {
-		Day day =  dayRepo.getDayForSupplementDeletion(dayId);
+		boolean isSupplementPresentInSet;
+		Optional<Day>  dayO =  dayRepo.getDayForSupplementDeletion(dayId);
+		if(dayO.isEmpty()) {
+			throw new NoSuchElementException("Day does not exist");
+		}
+			Day day = dayO.get();
+			
 		String username =day.getMonthlySchedule().getWeightlifter().getUsername();
+		
 		if(!username.equals(mainUser)) {
 			throw new IlegalAccessApiException();
 		}
-		day.getSupplements().remove(day.getSupplements().stream().filter(p->p.equals(supplement)).findAny().get());
+		
+		isSupplementPresentInSet = day.getSupplements().remove(supplement);
+		if(!isSupplementPresentInSet) {
+			throw new NoSuchElementException("Supplement does not exist");
+		}
 		dayRepo.save(day);
 	}
 
 	public void deletePost(Long id,String mainUser) {
-		String username = postRepo.findById(id).get().getWeightlifter().getUsername();
+		Optional<Post> post = postRepo.findById(id);
+		if(post.isEmpty()) {
+			throw new NoSuchElementException();
+		}
+		String username = post.get().getWeightlifter().getUsername();
 		if(!username.equals(mainUser)) {
 			throw new IlegalAccessApiException();
 		}
@@ -74,12 +108,23 @@ public class DeleteService {
 	public void deleteFriend(String username1, String username2,String mainUser) {
 		if(mainUser.equals(username1)||mainUser.equals(username2)) {
 		
-		Weightlifter weightlifter1 = weightlifterRepo.getWeightlifterWithFriends(username1);
-		Weightlifter weighlifter2 = weightlifterRepo.getWeightlifterWithFriends(username2);
-		weightlifter1.getMyFriends().remove(weighlifter2);
-		weighlifter2.getMyFriends().remove(weightlifter1);
+		Optional<Weightlifter> weightlifterOp1 = weightlifterRepo.getWeightlifterWithFriends(username1);
+		
+		Optional<Weightlifter> weighlifterOp2 = weightlifterRepo.getWeightlifterWithFriends(username2);
+		
+		if(!(weightlifterOp1.isPresent() && weighlifterOp2.isPresent() )) {
+			throw new NoSuchElementException();
+		}
+		
+		Weightlifter weightlifter1 = weightlifterOp1.get();
+		Weightlifter weightlifter2 = weighlifterOp2.get();
+		
+		weightlifter1.getMyFriends().remove(weightlifter2);
+		weightlifter2.getMyFriends().remove(weightlifter1);
+		
 		weightlifterRepo.save(weightlifter1);
-		weightlifterRepo.save(weighlifter2);
+		weightlifterRepo.save(weightlifter2);
+		
 		}
 		else {
 			throw new IlegalAccessApiException();

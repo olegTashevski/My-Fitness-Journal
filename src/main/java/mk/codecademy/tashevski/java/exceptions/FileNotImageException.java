@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class FileNotImageException extends RuntimeException {
 	
-	private String mainUsername;
+	private final String mainUsername;
 	public FileNotImageException(String string,String mainUsername) {
 		super(string);
 		this.mainUsername = mainUsername;

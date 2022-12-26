@@ -1,6 +1,8 @@
 package mk.codecademy.tashevski.java.dto;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,11 +18,13 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class EditPost {
-	@NotBlank
+	@NotNull
+	@Min(0)
 	private Long postId;
 	
+	@Size(max = 100,message = "max charachters of the head is 100")
 	private String newHead;
-	@NotBlank
+	@Size(min = 1 ,max = 250,message = "max charachters of the description is 250 and must not be blank")
 	private String newDescription;
 	private MultipartFile[] newImages;
 	private Long[] imagesIdsRemoved;

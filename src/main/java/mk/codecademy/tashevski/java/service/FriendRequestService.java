@@ -6,19 +6,27 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import mk.codecademy.tashevski.java.dto.FriendRequestGet;
 import mk.codecademy.tashevski.java.dto.ResolvementOfFriendRequest;
+import mk.codecademy.tashevski.java.exceptions.IlegalAccessApiException;
 import mk.codecademy.tashevski.java.model.FriendRequest;
 import mk.codecademy.tashevski.java.repository.FriendRequestRepo;
 
 @Service
+@RequiredArgsConstructor
 public class FriendRequestService {
-
-	@Autowired
-	private FriendRequestRepo friendRequestRepo;
 	
-	@Autowired
-	private WeightlifterPutService weightlifterPutService;
+
+	@Getter
+	private final FriendRequestRepo friendRequestRepo;
+	
+	@Getter
+	private final WeightlifterPutService weightlifterPutService;
+	
+	
 
 	public void sendRequest(String fromUser, String toUser) {
 		friendRequestRepo.save(new FriendRequest(null, fromUser, toUser));
@@ -34,17 +42,26 @@ public class FriendRequestService {
 	}
 
 	public List<FriendRequestGet> getUserRequests(String username) {
-		// TODO Auto-generated method stub
+		
 		return friendRequestRepo.getAllRequestForUser(username);
 	}
 
 	public void resolveRequest(ResolvementOfFriendRequest resolvement) {
-		System.out.println(resolvement);
-		if(resolvement.isAccepted()) {
-			System.out.println("ITs true");
-			weightlifterPutService.addFriend(resolvement.getFrom(), resolvement.getTo());
+		
+		
+		
+		final String fromUsername = resolvement.getFrom();
+		final String toUsername = resolvement.getTo();
+		
+		if(friendRequestRepo.findByFromUserAndToUser(fromUsername, toUsername).isEmpty()) {
+			throw new IlegalAccessApiException();
 		}
-		friendRequestRepo.deleteByFromUserAndToUser(resolvement.getFrom(),resolvement.getTo());
+		if(resolvement.isAccepted()) {
+			
+			weightlifterPutService.addFriend(fromUsername, toUsername);
+		}
+		
+		friendRequestRepo.deleteByFromUserAndToUser(fromUsername,toUsername);
 		
 	}
 	

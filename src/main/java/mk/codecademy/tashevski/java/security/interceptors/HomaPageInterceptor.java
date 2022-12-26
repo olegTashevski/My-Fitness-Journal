@@ -1,153 +1,178 @@
 package mk.codecademy.tashevski.java.security.interceptors;
 
-import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
-import org.thymeleaf.expression.Strings;
 
-import antlr.StringUtils;
+import mk.codecademy.tashevski.java.exceptions.IlegalAccessException;
 import mk.codecademy.tashevski.java.exceptions.IlegalUsernameOrPassword;
 import mk.codecademy.tashevski.java.exceptions.NotSignedInException;
 import mk.codecademy.tashevski.java.model.Weightlifter;
 import mk.codecademy.tashevski.java.repository.WeightlifterRepo;
-
+import static mk.codecademy.tashevski.java.Constants.AUTHORI_ATT_NAME;
+import static mk.codecademy.tashevski.java.Constants.AUTHEN_COOKIE_NAME;
+import static mk.codecademy.tashevski.java.Constants.AUTHORI_TYPE_MYPAGE;
+import static mk.codecademy.tashevski.java.Constants.AUTHORI_TYPE_FRIEND;
+import static mk.codecademy.tashevski.java.Constants.AUTHORI_TYPE_NOTFRIEND;
+import static mk.codecademy.tashevski.java.Constants.MAIN_USER_ATT_NAME;
 @Component
 public class HomaPageInterceptor implements HandlerInterceptor {
-	private boolean myPage;
+	private boolean myPage=false;
 	@Autowired
 	private WeightlifterRepo weightlifterRepo;
+	
+	
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-		System.out.println("topka");
 		String username = request.getParameter("username");
+		
 		if(request.getRequestURI().equals("/homepagaAfterPost")) {
-			try {
-				boolean throwExc = true;
-				for (Cookie cookie : request.getCookies()) {
-					System.out.println("cookie value:"+cookie.getValue());
-					if(cookie.getName().equals("authentication")) {
-						request.setAttribute("mainUser", cookie.getValue());
-						throwExc = false;
-					}
-				}
-				if(throwExc) {
-					throw new Exception();
-				}
-				
-			} catch (Exception e) {
-				throw new NotSignedInException();
-			}
-			System.out.println("end of after post");
+			homepageAfterPost(request);
 		}
-		if(request.getRequestURI().equals("/getHomepage")) {
-			try {
-				boolean throwExc = true;
-				for (Cookie cookie : request.getCookies()) {
-					
-					if(cookie.getName().equals("authentication")) {
-						if(cookie.getValue()==username) {
-							throwExc=false;
-						}
-						else {
-							Cookie deleteCookie = new Cookie("authentication", null);
-							deleteCookie.setMaxAge(0);
-							response.addCookie(deleteCookie);
-						}
-					}
-				}
-				if(throwExc) {
-					throw new Exception();
-				}
-				}
-			catch (Exception e) {
-				
-			
-			Optional<Weightlifter> weightlifterO = weightlifterRepo.findById(username); 
-			if(weightlifterO.isEmpty()) {
-				throw new IlegalUsernameOrPassword("Username doesn't exist");
-			}
-			Weightlifter weightlifter = weightlifterO.get();
-			if(!request.getParameter("password").equals(weightlifter.getPassword())) {
-				throw new IlegalUsernameOrPassword("The password is incorrect");
-			}
-			System.out.println("HomaPageInterceptor.afterCompletion()");
-			System.out.println(username);
-			Cookie cookie = new Cookie("authentication", username);
-			cookie.setMaxAge(7200);
-			response.addCookie(cookie);
-			myPage=true;
-			}
+		
+		else if(request.getRequestURI().equals("/getHomepage")) {
+			getHomepage(request, response, username);
 		}
-		if(request.getRequestURI().equals("/homepage")) {
-			try 
-			{
-				String type = null;
-				System.out.println("In Interceptor for homapage "+request.getParameter("myPage"));
-				try {
-					if(myPage) {
-						type = "myPage";
-						myPage=false;
-					}
-					else {
-						throw new Exception();
-					}
-				} catch (Exception  e) 
-				{
-					boolean throwExc = true;
-					for (Cookie cookie : request.getCookies())
-					{
-						
-						if(cookie.getName().equals("authentication"))
-						{	
-							throwExc=false;
-							type=checkUsername(cookie.getValue(),username);
-						}
-						
-					}
-					if(throwExc) {
-						throw new Exception();
-					}
-				}
-				
-				request.setAttribute("authentication", type);
-			}
-			catch (Exception e) {
-				System.out.println(e);
-				throw  new NotSignedInException();
-			}
-			
+		else if(request.getRequestURI().equals("/homepage")) {
+		String type = homepage(request, username);
+		request.setAttribute(AUTHORI_ATT_NAME, type);
 		} 
 		
 		return HandlerInterceptor.super.preHandle(request, response, handler);
 	}
 
+	private String homepage(HttpServletRequest request, String username) {
+		
+			String type = null;
+					
+				if(myPage) {
+					type = AUTHORI_TYPE_MYPAGE;
+					myPage=false;
+					return type;
+				}
+					
+				boolean throwExc = true;
+				final Cookie[] cookies = request.getCookies();
+				if(cookies==null) {
+					throw new NotSignedInException();
+				}
+				
+				for (Cookie cookie : cookies){
+					
+					if(cookie.getName().equals(AUTHEN_COOKIE_NAME)) {	
+						throwExc=false;
+						type=checkUsername(cookie.getValue(),username);
+					}
+					
+				}
+				if(throwExc) {
+					throw new NotSignedInException();
+				}
+			
+			
+			return type;
+		
+		
+	}
+
+	private void getHomepage(HttpServletRequest request, HttpServletResponse response, String username) {
+	
+			
+			final Cookie[] cookies = request.getCookies();
+			if(cookies==null) {
+				authenticate(request, response, username);
+				return;
+			}
+			
+			
+			String autheticatedUsername=null;
+			
+			for (Cookie cookie : cookies) {
+				if(cookie.getName().equals(AUTHEN_COOKIE_NAME)) {
+					autheticatedUsername = cookie.getValue();
+					
+				}
+			}
+			
+			
+			
+			if(autheticatedUsername!=null && autheticatedUsername.equals(username)) {
+				return;
+			}
+			else {
+				Cookie deleteCookie = new Cookie(AUTHEN_COOKIE_NAME, null);
+				deleteCookie.setMaxAge(0);
+				response.addCookie(deleteCookie);
+			}
+			
+			authenticate(request, response, username);
+		
+	}
+
+	private void authenticate(HttpServletRequest request, HttpServletResponse response, String username) {
+		Optional<Weightlifter> weightlifterO = weightlifterRepo.findById(username);
+		
+		if(weightlifterO.isEmpty()) {
+			throw new IlegalUsernameOrPassword("Username doesn't exist");
+		}
+		Weightlifter weightlifter = weightlifterO.get();
+		if(!request.getParameter("password").equals(weightlifter.getPassword())) {
+			throw new IlegalUsernameOrPassword("The password is incorrect");
+		}
+		
+		Cookie cookie = new Cookie(AUTHEN_COOKIE_NAME, username);
+		cookie.setMaxAge(7200);
+		response.addCookie(cookie);
+		myPage=true;
+	}
+
+	private void homepageAfterPost(HttpServletRequest request) {
+		
+			boolean throwExc = true;
+			
+			final Cookie[] cookies = request.getCookies();
+			if(cookies==null) {
+				throw new NotSignedInException();
+			}
+			for (Cookie cookie : cookies) {
+				
+				if(cookie.getName().equals(AUTHEN_COOKIE_NAME)) {
+					
+					request.setAttribute(MAIN_USER_ATT_NAME, cookie.getValue());
+					throwExc = false;
+				}
+			}
+			
+			if(throwExc) {
+				throw new NotSignedInException();
+			}
+		
+	}
+
 	private  String checkUsername(String cookieUsername,String paramUsername) {
 		String type=null;
 		if(cookieUsername.equals(paramUsername)) {
-			type="myPage";
+			type=AUTHORI_TYPE_MYPAGE;
 		}
+		else if(weightlifterRepo.findFriend(cookieUsername, paramUsername).isPresent()){
+			type=AUTHORI_TYPE_FRIEND;
+		}
+		else if(weightlifterRepo.findById(paramUsername).isPresent()) {
+			type=AUTHORI_TYPE_NOTFRIEND;
+			}
 		else {
-			Optional<Weightlifter> weightlifter = weightlifterRepo.findFriend(cookieUsername, paramUsername);
-			if(weightlifter.isPresent()) {
-				type="friend";
-			}
-			else {
-				type="notFriend";
-			}
+			throw new IlegalAccessException(cookieUsername);
 		}
+		
 		return type;
 		
 	}
@@ -155,24 +180,37 @@ public class HomaPageInterceptor implements HandlerInterceptor {
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
-		if(!((boolean)modelAndView.getModel().get("myPage")==false)) {
+		if(!request.getRequestURI().equals("/homepage")) {
 			return;
 		}
-		String mainUser = (String)(modelAndView.getModel().get("mainUser"));
+		
+		final boolean myPageBoolean = (boolean)modelAndView.getModel().get(AUTHORI_TYPE_MYPAGE);
+		if(myPageBoolean) {
+			return;
+		}
+		
+		String mainUser = (String)(modelAndView.getModel().get(MAIN_USER_ATT_NAME));
 		if(mainUser!=null && !mainUser.isBlank()) {
 			return;
 		}
-		for (Cookie cookie : request.getCookies())
+		
+		final Cookie[] cookies = request.getCookies();
+		
+		if(cookies==null) {
+			return;
+		}
+		
+		for (Cookie cookie : cookies)
 		{
 			
-			if(cookie.getName().equals("authentication"))
+			if(cookie.getName().equals(AUTHEN_COOKIE_NAME))
 			{	
-				modelAndView.addObject("mainUser", cookie.getValue());
+				modelAndView.addObject(MAIN_USER_ATT_NAME, cookie.getValue());
 			}
 			
 		}
 		
-		// TODO Auto-generated method stub
+	
 		HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
 	}
 

@@ -16,7 +16,7 @@ import mk.codecademy.tashevski.java.security.interceptors.MonthlySheduleIntercep
 import mk.codecademy.tashevski.java.security.interceptors.SignIntercetor;
 import mk.codecademy.tashevski.java.security.interceptors.WeightlifterPutApiInterceptor;
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class WebInterceptorConfig implements WebMvcConfigurer {
 	
 	@Autowired
 	private HomaPageInterceptor homaPageInterceptor;

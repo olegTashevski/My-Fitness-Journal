@@ -9,51 +9,53 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import mk.codecademy.tashevski.java.exceptions.IlegalAccessApiException;
-import mk.codecademy.tashevski.java.exceptions.NotSignedInException;
+import static mk.codecademy.tashevski.java.Constants.MAIN_USER_ATT_NAME;
+import static mk.codecademy.tashevski.java.Constants.AUTHEN_COOKIE_NAME;
 @Component
 public class ApiInterceptor implements HandlerInterceptor{
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-		System.out.println("In apiInterceptor");
+		
 		boolean throwExc= true;
 		String username=null;
-		try {
-			for (Cookie cookie : request.getCookies())
+		
+			final Cookie[] cookies = request.getCookies();
+			
+			if(cookies==null) {
+				throw new  IlegalAccessApiException();
+			}
+			
+			for (Cookie cookie : cookies)
 			{
 				
-				if(cookie.getName().equals("authentication"))
+				if(cookie.getName().equals(AUTHEN_COOKIE_NAME))
 				{	
 					username = cookie.getValue();
 					throwExc=false;
 				}
 				
 			}
-		} catch (NullPointerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("pop");
-		}
+		 
 		if(throwExc) {
 			throw new IlegalAccessApiException();
 		}
-		request.setAttribute("mainUser", username);
-		// TODO Auto-generated method stub
+		request.setAttribute(MAIN_USER_ATT_NAME, username);
+
 		return HandlerInterceptor.super.preHandle(request, response, handler);
 	}
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
-		// TODO Auto-generated method stub
+		
 		HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
 	}
 
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 			throws Exception {
-		// TODO Auto-generated method stub
 		HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
 	}
 

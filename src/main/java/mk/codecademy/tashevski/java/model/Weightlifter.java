@@ -1,9 +1,12 @@
 package mk.codecademy.tashevski.java.model;
 
+import java.sql.Date;
+import java.util.Objects;
+import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -13,21 +16,20 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.sql.Date;
-import java.util.Objects;
-import java.util.Set;
+import lombok.Setter;
 @Entity
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Table(name = "weightLifters")
 public class Weightlifter{
 	
@@ -101,6 +103,15 @@ public class Weightlifter{
 	public int hashCode() {
 		return Objects.hash(username);
 	}
+
+	@Override
+	public String toString() {
+		return "Weightlifter [username=" + username + ", firstName=" + firstName + ", lastName=" + lastName
+				+ ", gender=" + gender + ", dateOfBirth=" + dateOfBirth + ", bio=" + bio + "]";
+	}
+
+	
+	
 	
 	
 	

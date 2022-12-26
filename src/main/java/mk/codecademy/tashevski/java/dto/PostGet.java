@@ -1,6 +1,6 @@
 package mk.codecademy.tashevski.java.dto;
 
-import java.sql.Timestamp;
+
 import java.util.Set;
 
 import lombok.AllArgsConstructor;

@@ -5,9 +5,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mk.codecademy.tashevski.java.exceptions.IlegalPersonalInformationChange;
 import mk.codecademy.tashevski.java.model.BothUsernames;
@@ -22,13 +22,15 @@ import mk.codecademy.tashevski.java.repository.WeightlifterRepo;
 public class WeightlifterPutService {
 
 	
+	@Getter
 	private final WeightlifterRepo weightlifterRepo;
 	private final SingleRatingRepo singleRatingRepo;
 
+	
 	public void changePassword(String username, String newPassword) {
 		Weightlifter weightlifter = weightlifterRepo.findById(username).orElseThrow();
 		String oldPassword = weightlifter.getPassword();
-		if(newPassword.equals(newPassword)) {
+		if(newPassword.equals(oldPassword)) {
 			throw new IlegalPersonalInformationChange("New password cannot be the same as the old password");	
 		}
 		weightlifter.setPassword(newPassword);
@@ -46,7 +48,7 @@ public class WeightlifterPutService {
 	}
 
 	public void changeLastName(String username, String newLastName) {
-		// TODO Auto-generated method stub
+		
 		Weightlifter weightlifter = weightlifterRepo.findById(username).orElseThrow();
 		String oldLastName = weightlifter.getLastName();
 		if(newLastName.equals(oldLastName)) {
@@ -118,15 +120,18 @@ public class WeightlifterPutService {
 				.weightlifterRating(rating).build();
 			totalNumberOfRatings++;
 			}
+		
 		singleRating.setRating(newRating);
 		if(rating.getSingleRatings()==null) {
 			rating.setSingleRatings(new HashSet<>());
 			}
+		
 		rating.getSingleRatings().add(singleRating);
 		rating.setNumberOfRatins(totalNumberOfRatings);
 		float raitingFinal  = rating.getSingleRatings().stream()
-				.map(rt->rt.getRating())
+				.map(SingleRating::getRating)
 				.reduce(0, (a,b)->(a+b));
+		
 		raitingFinal = raitingFinal/totalNumberOfRatings;
 		rating.setRating(raitingFinal);
 		rating.setWeightlifter(weightlifter);

@@ -4,16 +4,19 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import mk.codecademy.tashevski.java.dto.EditPost;
 import mk.codecademy.tashevski.java.dto.ExerciseDto;
 import mk.codecademy.tashevski.java.dto.MealDto;
-import mk.codecademy.tashevski.java.dto.RequestPost;
 import mk.codecademy.tashevski.java.dto.SupplementDto;
 import mk.codecademy.tashevski.java.dto.WeightlifterSignUp;
 import mk.codecademy.tashevski.java.dto.WorkoutDto;
@@ -30,37 +33,42 @@ import mk.codecademy.tashevski.java.model.Weightlifter;
 import mk.codecademy.tashevski.java.repository.DayRepo;
 import mk.codecademy.tashevski.java.repository.ExerciseRepo;
 import mk.codecademy.tashevski.java.repository.MealRepo;
-import mk.codecademy.tashevski.java.repository.MonthlyScheduleRepo;
 import mk.codecademy.tashevski.java.repository.PhotoRepo;
 import mk.codecademy.tashevski.java.repository.PostRepo;
 import mk.codecademy.tashevski.java.repository.WeightlifterRepo;
 import mk.codecademy.tashevski.java.repository.WorkoutRepo;
 
 @Service
+@RequiredArgsConstructor()
 public class WeightlifterService {
-	@Autowired
-	private ExtrasService extrasService;
 	
-	@Autowired
-	private WeightlifterRepo weightlifterRepo;
 	
-	@Autowired
-	private MealRepo mealRepo;
 	
-	@Autowired 
-	private ExerciseRepo exerciseRepo;
+	private final ExtrasService extrasService;
 	
-	@Autowired
-	private WorkoutRepo workoutRepo;
+	private final WeightlifterRepo weightlifterRepo;
 	
-	@Autowired
-	private PhotoRepo photoRepo;
 	
-	@Autowired
-	private PostRepo postRepo;
+	private final MealRepo mealRepo;
 	
-	@Autowired
-	private DayRepo dayRepo;
+
+	private final  ExerciseRepo exerciseRepo;
+	
+
+	private final WorkoutRepo workoutRepo;
+	
+	
+	private final PhotoRepo photoRepo;
+	
+	
+	private final PostRepo postRepo;
+	
+	
+	private final DayRepo dayRepo;
+	
+	
+	
+	
 	
 	public void addUser( WeightlifterSignUp weightlifterDto) {
 		for (Weightlifter lifter : weightlifterRepo.findAll()) {
@@ -71,7 +79,7 @@ public class WeightlifterService {
 		Weightlifter weightlifter = new Weightlifter(weightlifterDto.getUsername()
 				,weightlifterDto.getPassword() , weightlifterDto.getFirstname()
 				, weightlifterDto.getLastName(), weightlifterDto.getGender()
-				, weightlifterDto.getDateOfBirth(), "", null, null,null, new HashSet<Post>(), new HashSet<Weightlifter>(), new HashSet<Weightlifter>()); 
+				, weightlifterDto.getDateOfBirth(), "", null, null,null, new HashSet<>(), new HashSet<>(), new HashSet<>()); 
 		weightlifterRepo.save(weightlifter);
 	}
 
@@ -86,10 +94,10 @@ public class WeightlifterService {
 		Weightlifter weightlifter = weightlifterRepo.findById(username).orElseThrow();
 		for(int i=0;i<daysBetween+1;i++) {
 			Day day = new Day();
-			day.setMeals(new HashSet<Meal>());
-			day.setWorkouts(new HashSet<WORKOUT>());
-			day.setSupplements(new HashSet<String>());
-			day.setDate(today.plusDays((long)i));
+			day.setMeals(new HashSet<>());
+			day.setWorkouts(new HashSet<>());
+			day.setSupplements(new HashSet<>());
+			day.setDate(today.plusDays(i));
 			days.add(day);
 			day.setId(day.getDate().toString()+weightlifter.getUsername());
 			day.setMonthlySchedule(monthlySchedule);
@@ -153,10 +161,16 @@ public class WeightlifterService {
 		if(!mainUser.equals(username)) {
 			throw new IlegalAccessApiException();
 		}
-				Day day = dayRepo.getDayForSupplementDeletion(supplementDto.getIdofDay());
-						
+				Optional<Day> dayO = dayRepo.getDayForSupplementDeletion(supplementDto.getIdofDay());
+				
+				if(dayO.isEmpty()) {
+					throw new NoSuchElementException();
+				}
+				
+				Day day = dayO.get();
+				
 				Set<String>	supplements = day.getSupplements();
-				System.out.println(supplements);
+				
 				supplements.add(supplementDto.getSupplement());
 				dayRepo.save(day);
 	}
@@ -184,7 +198,7 @@ public class WeightlifterService {
 	}
 		if(postEdit.getImagesIdsRemoved()!=null) {
 		for(Long id : postEdit.getImagesIdsRemoved()) {
-		 Photo photo = images.stream().filter(ph->ph.getId()==id)
+		 Photo photo = images.stream().filter(ph->ph.getId().equals(id))
 				 .findFirst()
 				 .orElseThrow();
 		 images.remove(photo);

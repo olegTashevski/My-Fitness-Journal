@@ -9,7 +9,7 @@ public class IlegalAccessException extends RuntimeException {
 	 * 
 	 */
 	private static final long serialVersionUID = 4722181330456362149L;
-	private String mainUsername;
+	private final String mainUsername;
 	
 	public IlegalAccessException(String mainUsername) {
 		this.mainUsername = mainUsername;

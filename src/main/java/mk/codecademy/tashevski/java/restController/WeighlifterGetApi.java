@@ -1,8 +1,5 @@
 package mk.codecademy.tashevski.java.restController;
 
-import java.util.List;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,21 +10,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.RequiredArgsConstructor;
 import mk.codecademy.tashevski.java.dto.PostGet;
-import mk.codecademy.tashevski.java.model.Photo;
 import mk.codecademy.tashevski.java.model.Post;
 import mk.codecademy.tashevski.java.service.ExtrasService;
 import mk.codecademy.tashevski.java.service.WeightLifterGetService;
+import static mk.codecademy.tashevski.java.Constants.MAIN_USER_ATT_NAME;
 
 @RestController
 @RequestMapping("/getApi/")
+@RequiredArgsConstructor
 public class WeighlifterGetApi {
 	
-	@Autowired
-	private ExtrasService extrasService;
 	
-	@Autowired
-	private WeightLifterGetService weightLifterGetService;
+	private final ExtrasService extrasService;
+	
+	
+	private final WeightLifterGetService weightLifterGetService;
 	
 	@GetMapping("/ProfileImage")
 	public byte[] getProfileImage(@RequestParam String weightlifterId,HttpServletResponse response) {
@@ -37,14 +36,14 @@ public class WeighlifterGetApi {
 	
 	@GetMapping("/getPosts")
 	public Slice<Post> getPosts(@RequestParam String username,@RequestParam int pageIndex,HttpServletRequest request){
-		String mainUser = (String) request.getAttribute("mainUser");
+		String mainUser = (String) request.getAttribute(MAIN_USER_ATT_NAME);
 		return weightLifterGetService.getPosts(username,mainUser,pageIndex);
 	}
 	
 	@GetMapping("/getPostImage")
 	public byte[] getPostImage(@RequestParam Long photoId,HttpServletResponse response,HttpServletRequest request) {
 		response.setContentType("image/png, image/jpeg, image/pipeg, image/x-icon, image/jpg, image/png, image/gif");
-		String mainUser = (String) request.getAttribute("mainUser");
+		String mainUser = (String) request.getAttribute(MAIN_USER_ATT_NAME);
 		return extrasService.getPostImage(photoId,mainUser);
 	} 
 	
@@ -55,7 +54,7 @@ public class WeighlifterGetApi {
 	
 	@GetMapping("/getPost")
 	public PostGet getPost(@RequestParam Long id,HttpServletRequest request) {
-		String mainUser = (String) request.getAttribute("mainUser");
+		String mainUser = (String) request.getAttribute(MAIN_USER_ATT_NAME);
 		return weightLifterGetService.getPost(id,mainUser);
 	}
 	

@@ -1,12 +1,11 @@
 package mk.codecademy.tashevski.java.model;
 
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
@@ -16,11 +15,17 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 @Entity
-@Data
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Getter
+@Setter
 public class MonthlySchedule {
 	
 	@Id
@@ -45,6 +50,24 @@ public class MonthlySchedule {
 		this.weightlifter = weightlifter;
 		this.days = days;
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MonthlySchedule other = (MonthlySchedule) obj;
+		return Objects.equals(id, other.id);
+	}
+	
 	
 	
 

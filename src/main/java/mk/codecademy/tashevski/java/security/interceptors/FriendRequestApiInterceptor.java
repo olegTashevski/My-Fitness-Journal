@@ -8,48 +8,49 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import mk.codecademy.tashevski.java.exceptions.IlegalAccessApiException;
-import mk.codecademy.tashevski.java.exceptions.IlegalAccessException;
+import static mk.codecademy.tashevski.java.Constants.MAIN_USER_ATT_NAME;
 @Component
 public class FriendRequestApiInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-		String mainUser = (String)request.getAttribute("mainUser");
-		String usernameParam = null;
+		String mainUser = (String)request.getAttribute(MAIN_USER_ATT_NAME);
+		
+		String usernameParam = "";
+		
 		String fromUser = request.getParameter("fromUser");
-		System.out.println("fromUser:"+fromUser);
+		
 		String username = request.getParameter("username");
-		System.out.println("username:"+username);
-		if(fromUser!= null || username!=null){
+		
+	
 			if(fromUser!=null) {
 				usernameParam = fromUser;
 			}
-			else {
+			else if(username!=null){
 				usernameParam = username;
 			}
-		}
-		System.out.println("mainUser:"+mainUser);
-		System.out.println("userParam"+usernameParam);
+		
+		
 		if(!mainUser.equals(usernameParam)) {
 			throw new  IlegalAccessApiException();
 		}
 		
-		// TODO Auto-generated method stub
+		
 		return HandlerInterceptor.super.preHandle(request, response, handler);
 	}
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
-		// TODO Auto-generated method stub
+		
 		HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
 	}
 
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 			throws Exception {
-		// TODO Auto-generated method stub
+		
 		HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
 	}
 	

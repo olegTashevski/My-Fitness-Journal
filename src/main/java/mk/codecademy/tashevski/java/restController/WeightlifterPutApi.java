@@ -1,7 +1,6 @@
 package mk.codecademy.tashevski.java.restController;
 
 import java.sql.Date;
-import java.time.LocalDate;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -14,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import mk.codecademy.tashevski.java.model.Weightlifter;
-import mk.codecademy.tashevski.java.repository.WeightlifterRepo;
 import mk.codecademy.tashevski.java.service.WeightlifterPutService;
 
 @Validated
@@ -40,19 +37,19 @@ public class WeightlifterPutApi {
 	}
 	
 	@PutMapping("/changeLastName")
-	public String LastNameChanged(@RequestParam String username,@RequestParam String newLastName) {
+	public String lastNameChanged(@RequestParam String username,@RequestParam String newLastName) {
 		weightlifterPutService.changeLastName(username,newLastName);
 		return "Last name has been changed";
 	}
 	
 	@PutMapping("/changeGender")
-	public String GenderChanged(@RequestParam String username,@RequestParam String newGender) {
+	public String genderChanged(@RequestParam String username,@RequestParam String newGender) {
 		weightlifterPutService.changeGender(username,newGender);
 		return "Gender has been changed";
 	}
 	
 	@PutMapping("/changeDateOfBirth")
-	public String DateOfBirthChanged(@RequestParam String username,@RequestParam Date newDateOfBirth) {
+	public String dateOfBirthChanged(@RequestParam String username,@RequestParam Date newDateOfBirth) {
 		weightlifterPutService.changeDateOfBirth(username,newDateOfBirth);
 		return "Date of Birth has been changed";
 	}

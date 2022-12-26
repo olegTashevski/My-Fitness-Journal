@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import mk.codecademy.tashevski.java.exceptions.IlegalAccessApiException;
 import mk.codecademy.tashevski.java.model.Weightlifter;
 import mk.codecademy.tashevski.java.repository.WeightlifterRepo;
+import static mk.codecademy.tashevski.java.Constants.MAIN_USER_ATT_NAME;
 @Component
 @RequiredArgsConstructor
 public class WeightlifterPutApiInterceptor implements HandlerInterceptor {
@@ -24,34 +25,38 @@ public class WeightlifterPutApiInterceptor implements HandlerInterceptor {
 			throws Exception {
 		
 		String usernameParam = request.getParameter("username");
-		System.out.println("usernameParam in PutApi Interceptor:"+usernameParam);
-		String mainUser = (String)request.getAttribute("mainUser");
-		System.out.println("mainUser in PutApi Interceptor:"+mainUser);
+		
+		String mainUser = (String)request.getAttribute(MAIN_USER_ATT_NAME);
+		
 		if(!mainUser.equals(usernameParam)) {
 			throw new IlegalAccessApiException();
 		}
 		
 		if(request.getRequestURI().equals("/putApi/newRating")) {
-			String friendUsername = request.getParameter("friendUsername");
-			Optional<Weightlifter> isFriend = weightlifterRepo.findFriend(usernameParam, friendUsername);
-			if(isFriend.isEmpty()) {
-				throw new IlegalAccessApiException();
-			}
+			newRatingHandler(request, usernameParam);
 		}
 		return HandlerInterceptor.super.preHandle(request, response, handler);
+	}
+
+	private void newRatingHandler(HttpServletRequest request, String usernameParam) {
+		String friendUsername = request.getParameter("friendUsername");
+		Optional<Weightlifter> isFriend = weightlifterRepo.findFriend(usernameParam, friendUsername);
+		if(isFriend.isEmpty()) {
+			throw new IlegalAccessApiException();
+		}
 	}
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
-		// TODO Auto-generated method stub
+	
 		HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
 	}
 
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
 			throws Exception {
-		// TODO Auto-generated method stub
+	
 		HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
 	}
 	

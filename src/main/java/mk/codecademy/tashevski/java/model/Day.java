@@ -5,9 +5,9 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -17,10 +17,15 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
 @NoArgsConstructor
 public class Day {
 	
@@ -29,6 +34,7 @@ public class Day {
 	@JoinColumn(name = "monthlySchedule_id")
 	private MonthlySchedule monthlySchedule;
 	@Id
+	@Column(length = 40)
 	private String id;
 	
 	private LocalDate date;
@@ -58,12 +64,12 @@ public class Day {
 		if (getClass() != obj.getClass())
 			return false;
 		Day other = (Day) obj;
-		return Objects.equals(date, other.date);
+		return Objects.equals(this.id, other.id);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(date);
+		return Objects.hash(this.id);
 	}
 
 	public Day(MonthlySchedule monthlySchedule, LocalDate date, Set<Meal> meals, Set<WORKOUT> workouts,
